@@ -16,6 +16,18 @@ public class Data {
         System.arraycopy(dataBytes, 0, this.data, 0, Math.min(dataBytes.length, this.data.length));
     }
 
+    public int getId() {
+        return id;
+    }
+
+    public byte[] getData() {
+        return data;
+    }
+
+    public String getDataAsString() {
+        return new String(data, StandardCharsets.UTF_8);
+    }
+
     public ByteBuffer toByteBuffer() {
         ByteBuffer buffer = ByteBuffer.allocate(SIZE);
         buffer.putInt(id);

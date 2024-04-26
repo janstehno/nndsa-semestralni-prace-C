@@ -27,7 +27,7 @@ public class App {
 
         System.out.println("Čtení souboru s " + Printer.formatBlue("jedním") + " bufferem...");
         FileReader fileReaderOneBuffer = new FileReader();
-        fileReaderOneBuffer.read(INPUT_FILE, false, print.toUpperCase().startsWith("Y"));
+        fileReaderOneBuffer.read(INPUT_FILE, false, false);
 
         System.out.println("Čtení souboru se " + Printer.formatBlue("dvěma") + " buffery...");
         FileReader fileReaderTwoBuffers = new FileReader();
@@ -42,7 +42,7 @@ public class App {
 
         System.out.println("Čtení zapsaného souboru se " + Printer.formatBlue("dvěma") + " buffery...");
         FileReader fileReaderTwoBuffersAfterWrite = new FileReader();
-        Set<Data> datasetAfterWrite = fileReaderTwoBuffersAfterWrite.read(OUTPUT_FILE, true, print.toUpperCase().startsWith("Y"));
+        Set<Data> datasetAfterWrite = fileReaderTwoBuffersAfterWrite.read(OUTPUT_FILE, true, false);
 
         System.out.println("Přečteno " + Printer.formatPurple(String.valueOf(datasetAfterWrite.size())) + " záznamů");
     }
