@@ -25,25 +25,25 @@ public class App {
 
         System.out.println();
 
+        FileReader fileReader = new FileReader();
+
         System.out.println("Čtení souboru s " + Printer.formatBlue("jedním") + " bufferem...");
-        FileReader fileReaderOneBuffer = new FileReader();
-        fileReaderOneBuffer.read(INPUT_FILE, false, false);
+        fileReader.read(INPUT_FILE, false, false);
+        long oneBufferDuration = fileReader.getDuration();
 
         System.out.println("Čtení souboru se " + Printer.formatBlue("dvěma") + " buffery...");
-        FileReader fileReaderTwoBuffers = new FileReader();
-        Set<Data> dataset = fileReaderTwoBuffers.read(INPUT_FILE, true, print.toUpperCase().startsWith("Y"));
+        Set<Data> dataset = fileReader.read(INPUT_FILE, true, print.toUpperCase().startsWith("Y"));
+        long twoBufferDuration = fileReader.getDuration();
 
-        System.out.println("Přečteno " + Printer.formatPurple(String.valueOf(dataset.size())) + " záznamů\n");
+        System.out.println("Přečteno " + Printer.formatPurple(String.valueOf(dataset.size())) + " záznamů");
+
+        double ratio = (double) oneBufferDuration / twoBufferDuration;
+        System.out.println("Čtení se dvěma buffery bylo " + Printer.formatPurple(String.format("%.2f",
+                                                                                               ratio) + "x") + " rychlejší než čtení s jedním bufferem\n");
 
         System.out.println("Zápis do souboru (velikost záznamu: " + Printer.formatGreen(Data.SIZE + "B") + ", záznamů v bloku: " + Printer.formatGreen(String.valueOf(
                 BLOCK_SIZE)) + ")...");
         FileWriter fileWriter = new FileWriter(BLOCK_SIZE);
         fileWriter.write(OUTPUT_FILE, dataset);
-
-        System.out.println("Čtení zapsaného souboru se " + Printer.formatBlue("dvěma") + " buffery...");
-        FileReader fileReaderTwoBuffersAfterWrite = new FileReader();
-        Set<Data> datasetAfterWrite = fileReaderTwoBuffersAfterWrite.read(OUTPUT_FILE, true, false);
-
-        System.out.println("Přečteno " + Printer.formatPurple(String.valueOf(datasetAfterWrite.size())) + " záznamů");
     }
 }

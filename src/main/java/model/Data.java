@@ -4,7 +4,7 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
 public class Data {
-    public static final int SIZE = 64;
+    public static final int SIZE = 512;
 
     int id;
     byte[] data;
@@ -14,18 +14,6 @@ public class Data {
         byte[] dataBytes = data.getBytes(StandardCharsets.UTF_8);
         this.data = new byte[SIZE - 4];
         System.arraycopy(dataBytes, 0, this.data, 0, Math.min(dataBytes.length, this.data.length));
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public byte[] getData() {
-        return data;
-    }
-
-    public String getDataAsString() {
-        return new String(data, StandardCharsets.UTF_8);
     }
 
     public ByteBuffer toByteBuffer() {

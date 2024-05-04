@@ -44,7 +44,7 @@ public record FileCreator(int blockSize, int blockNum) {
                     fileChannel.write(blockData);
                 }
 
-                System.out.println("Soubor " + Printer.formatYellow("heap_file.bin") + " byl úspěšně vytvořen.");
+                System.out.println("Soubor " + Printer.formatYellow(fileName) + " byl úspěšně vytvořen.");
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
