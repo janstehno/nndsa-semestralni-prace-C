@@ -13,11 +13,6 @@ public record FileCreator(int blockSize, int blockNum) {
 
     public static byte HEADER_SIZE = 8;
 
-    public FileCreator(int blockSize, int blockNum) {
-        this.blockSize = blockSize * Data.SIZE;
-        this.blockNum = blockNum;
-    }
-
     public void create(String fileName) {
         try {
             File file = new File(fileName);

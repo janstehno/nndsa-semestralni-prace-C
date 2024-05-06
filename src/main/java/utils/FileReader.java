@@ -28,14 +28,12 @@ public class FileReader {
     }
 
     private void readBlockToBuffer(Buffer buffer, RandomAccessFile file, int blockIndex, int blockSize) throws IOException {
-        buffer.reading();
         buffer.getBuffer().clear();
         file.seek(FileCreator.HEADER_SIZE + (long) blockIndex * blockSize);
 
         // Blokové čtení
         file.getChannel().read(buffer.getBuffer());
-        buffer.getBuffer().flip();
-        buffer.notReading();
+        buffer.notAccessingFile();
     }
 
     private void processBlock(Buffer buffer, int bufferNum, boolean printBuffer) {
@@ -43,6 +41,8 @@ public class FileReader {
             int recordNum = 0;
 
             // Zpracování dat
+            buffer.getBuffer().flip();
+
             while (buffer.getBuffer().hasRemaining()) {
                 int id = buffer.getBuffer().getInt();
                 byte[] dataBytes = new byte[Data.SIZE - 4];
@@ -78,19 +78,22 @@ public class FileReader {
             long startTime = System.currentTimeMillis();
             AtomicLong endTime = new AtomicLong();
 
-            AtomicInteger index = new AtomicInteger(-1);
+            AtomicInteger blockIndex = new AtomicInteger(-1);
 
             Thread thread = null;
             if (useSecondBuffer) {
                 thread = new Thread(() -> {
                     try {
                         while (true) {
-                            if (index.get() + 1 >= numBlocks) {
+                            if (blockIndex.get() + 1 >= numBlocks) {
                                 endTime.set(System.currentTimeMillis());
                                 break;
-                            } else if (buffer1.isNotReading()) {
-                                index.set(index.get() + 1);
-                                readBlockToBuffer(buffer2, inputFile, index.get(), blockSize);
+                            } else if (buffer1.isNotAccessingFile()) {
+                                synchronized (blockIndex) {
+                                    buffer2.accessingFile();
+                                }
+                                blockIndex.set(blockIndex.get() + 1);
+                                readBlockToBuffer(buffer2, inputFile, blockIndex.get(), blockSize);
                                 processBlock(buffer2, 2, printBuffers);
                             }
                         }
@@ -104,12 +107,15 @@ public class FileReader {
 
             try {
                 while (true) {
-                    if (index.get() + 1 >= numBlocks) {
+                    if (blockIndex.get() + 1 >= numBlocks) {
                         endTime.set(System.currentTimeMillis());
                         break;
-                    } else if (!useSecondBuffer || (buffer2.isNotReading())) {
-                        index.set(index.get() + 1);
-                        readBlockToBuffer(buffer1, inputFile, index.get(), blockSize);
+                    } else if (!useSecondBuffer || (buffer2.isNotAccessingFile())) {
+                        synchronized (blockIndex) {
+                            buffer1.accessingFile();
+                        }
+                        blockIndex.set(blockIndex.get() + 1);
+                        readBlockToBuffer(buffer1, inputFile, blockIndex.get(), blockSize);
                         processBlock(buffer1, 1, printBuffers);
                     }
                 }
@@ -119,7 +125,7 @@ public class FileReader {
 
             if (useSecondBuffer) thread.join();
 
-            duration = endTime.get() - startTime;
+            this.duration = endTime.get() - startTime;
             System.out.println("Čtení dat trvalo: " + Printer.formatYellow(duration + " ms"));
 
             inputFile.close();
